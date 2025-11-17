@@ -5,3 +5,12 @@ pandas
 scikit-learn
 werkzeug
 ultralytics
+
+gunicorn
+ultralytics
+opencv-python-headless
+numpy
+GitPython
+Pillow
+requests
+tqdm
