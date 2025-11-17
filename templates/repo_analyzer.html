@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Repository Analyzer - ProGrade</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <i class="fas fa-chart-line"></i>
+                <span>ProGrade</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="/">Dashboard</a></li>
+                <li><a href="/repo-analyzer" class="active">Repo Analyzer</a></li>
+                <li><a href="/image-rater">Image Rater</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="container">
+        <section class="analyzer-section">
+            <h1><i class="fas fa-code-branch"></i> Repository Analyzer</h1>
+            <p class="subtitle">Analyze any GitHub repository or local project path</p>
+
+            <div class="input-section">
+                <form id="repoForm" class="analyzer-form">
+                    <div class="form-group">
+                        <label for="repoUrl">Repository URL or Local Path</label>
+                        <input 
+                            type="text" 
+                            id="repoUrl" 
+                            name="repo_url" 
+                            placeholder="https://github.com/user/repo or C:\path\to\repo"
+                            required
+                        >
+                        <small>Enter a GitHub URL (https://github.com/user/repo) or a local directory path</small>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-large">
+                        <i class="fas fa-search"></i> Analyze Repository
+                    </button>
+                </form>
+            </div>
+
+            <div id="loadingSpinner" class="loading-spinner" style="display: none;">
+                <div class="spinner"></div>
+                <p>Analyzing repository...</p>
+            </div>
+
+            <div id="errorMessage" class="alert alert-error" style="display: none;"></div>
+
+            <div id="resultsSection" class="results-section" style="display: none;">
+                <h2>Analysis Results</h2>
+                
+                <div class="results-grid">
+                    <!-- Summary Card -->
+                    <div class="result-card">
+                        <h3><i class="fas fa-info-circle"></i> Summary</h3>
+                        <div class="card-content">
+                            <div class="info-row">
+                                <span class="label">Repository Name:</span>
+                                <span id="repoName" class="value">-</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="label">Reported Name:</span>
+                                <span id="reportedName" class="value">-</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="label">Domains:</span>
+                                <span id="domains" class="value">-</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Scores Card -->
+                    <div class="result-card">
+                        <h3><i class="fas fa-chart-bar"></i> Quality Scores</h3>
+                        <div class="card-content" id="scoresContent">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Tech Stack Card -->
+                    <div class="result-card full-width">
+                        <h3><i class="fas fa-cogs"></i> Technology Stack</h3>
+                        <div class="card-content">
+                            <div class="tech-section" id="techLanguages">
+                                <h4>Languages</h4>
+                                <div class="chips" id="languagesChips"></div>
+                            </div>
+                            <div class="tech-section" id="techFrameworks">
+                                <h4>Frameworks</h4>
+                                <div class="chips" id="frameworksChips"></div>
+                            </div>
+                            <div class="tech-section" id="techDatabases">
+                                <h4>Databases & Tools</h4>
+                                <div class="chips" id="databasesChips"></div>
+                            </div>
+                            <div class="tech-section" id="techAI">
+                                <h4>AI Assistants</h4>
+                                <div class="chips" id="aiChips"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contributors Card -->
+                    <div class="result-card full-width">
+                        <h3><i class="fas fa-users"></i> Top Contributors</h3>
+                        <div class="card-content">
+                            <div id="contributorsContent" class="contributors-list">
+                                <!-- Populated by JS -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn btn-secondary" onclick="resetForm()">
+                    <i class="fas fa-redo"></i> Analyze Another Repository
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2024 ProGrade. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById('repoForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const repoUrl = document.getElementById('repoUrl').value.trim();
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            const errorMessage = document.getElementById('errorMessage');
+            const resultsSection = document.getElementById('resultsSection');
+            
+            // Reset UI
+            errorMessage.style.display = 'none';
+            resultsSection.style.display = 'none';
+            loadingSpinner.style.display = 'flex';
+            
+            try {
+                const response = await fetch('/api/analyze-repo', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ repo: repoUrl })
+                });
+                
+                const data = await response.json();
+                loadingSpinner.style.display = 'none';
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Analysis failed');
+                }
+                
+                displayResults(data.data);
+                resultsSection.style.display = 'block';
+            } catch (error) {
+                loadingSpinner.style.display = 'none';
+                errorMessage.textContent = `Error: ${error.message}`;
+                errorMessage.style.display = 'block';
+            }
+        });
+        
+        function displayResults(results) {
+            const modelReport = results.model_report || {};
+            
+            // Summary
+            document.getElementById('repoName').textContent = results.repo_name || '-';
+            document.getElementById('reportedName').textContent = modelReport.repo_name || '-';
+            document.getElementById('domains').textContent = 
+                (modelReport.domains && modelReport.domains.length > 0) 
+                    ? modelReport.domains.join(', ') 
+                    : '-';
+            
+            // Scores
+            const scoresContent = document.getElementById('scoresContent');
+            scoresContent.innerHTML = '';
+            if (modelReport.scores && Object.keys(modelReport.scores).length > 0) {
+                Object.entries(modelReport.scores).forEach(([key, value]) => {
+                    const div = document.createElement('div');
+                    div.className = 'info-row';
+                    div.innerHTML = `
+                        <span class="label">${key.replace(/_/g, ' ').toUpperCase()}:</span>
+                        <span class="value">${typeof value === 'number' ? value.toFixed(2) : value}</span>
+                    `;
+                    scoresContent.appendChild(div);
+                });
+            } else {
+                scoresContent.innerHTML = '<p class="muted">No scores available</p>';
+            }
+            
+            // Tech Stack
+            const techStack = modelReport.tech_stack || {};
+            
+            populateChips('languagesChips', techStack.languages || []);
+            populateChips('frameworksChips', techStack.frameworks || []);
+            
+            const databases = [...(techStack.databases || []), ...(techStack.other_tools || [])];
+            populateChips('databasesChips', databases);
+            populateChips('aiChips', techStack.ai_coding_assistants || []);
+            
+            // Contributors
+            const contributorsContent = document.getElementById('contributorsContent');
+            contributorsContent.innerHTML = '';
+            if (modelReport.contributors && modelReport.contributors.length > 0) {
+                const list = document.createElement('ol');
+                list.className = 'contributors-list-ol';
+                modelReport.contributors.slice(0, 10).forEach(contributor => {
+                    const li = document.createElement('li');
+                    const name = contributor.name || contributor;
+                    const commits = contributor.commits ? ` — ${contributor.commits} commits` : '';
+                    li.textContent = name + commits;
+                    list.appendChild(li);
+                });
+                contributorsContent.appendChild(list);
+            } else {
+                contributorsContent.innerHTML = '<p class="muted">No contributors detected</p>';
+            }
+        }
+        
+        function populateChips(elementId, items) {
+            const container = document.getElementById(elementId);
+            container.innerHTML = '';
+            if (items.length > 0) {
+                items.forEach(item => {
+                    const chip = document.createElement('span');
+                    chip.className = 'chip';
+                    chip.textContent = item;
+                    container.appendChild(chip);
+                });
+            } else {
+                container.innerHTML = '<span class="muted">N/A</span>';
+            }
+        }
+        
+        function resetForm() {
+            document.getElementById('repoForm').reset();
+            document.getElementById('resultsSection').style.display = 'none';
+            document.getElementById('repoUrl').focus();
+        }
+    </script>
+</body>
+</html>

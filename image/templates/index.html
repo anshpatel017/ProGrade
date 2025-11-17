@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Image Rating</title>
+    <link rel="stylesheet" href="/static/styles.css">
+  </head>
+  <body>
+    <div class="container">
+      <h1>Upload an image to rate</h1>
+
+      {% if error %}
+        <div class="error">{{ error }}</div>
+      {% endif %}
+
+      <form method="post" enctype="multipart/form-data">
+        <input type="file" name="file" accept="image/*" required>
+        <button type="submit">Upload & Rate</button>
+      </form>
+
+      {% if result %}
+        <div class="result">
+          <h2>Result</h2>
+          <img src="/uploads/{{ filename }}" alt="uploaded image">
+          <p><strong>Predicted Rating:</strong> {{ rating }} / 5</p>
+          <p><strong>Confidence:</strong> {{ "{:.2f}".format(confidence) }}</p>
+        </div>
+      {% endif %}
+
+      <footer>
+        <p>Model file: <code>best.pt</code> — placed in the same folder as `rate.py`.</p>
+      </footer>
+    </div>
+  </body>
+</html>

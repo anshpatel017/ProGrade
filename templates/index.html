@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProGrade - Unified Analysis Platform</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <i class="fas fa-chart-line"></i>
+                <span>ProGrade</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="/" class="active">Dashboard</a></li>
+                <li><a href="/repo-analyzer">Repo Analyzer</a></li>
+                <li><a href="/image-rater">UI Rater</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="hero">
+        <div class="hero-content">
+            <h1>ProGrade - Unified Analysis Platform</h1>
+            <p>Analyze repositories and rate images with advanced AI models</p>
+        </div>
+    </div>
+
+    <main class="container">
+        <section class="features">
+            <h2>Choose Your Analysis Tool</h2>
+            <div class="features-grid">
+                <!-- Repository Analyzer Card -->
+                <div class="feature-card">
+                    <div class="card-icon">
+                        <i class="fas fa-code-branch"></i>
+                    </div>
+                    <h3>Repository Analyzer</h3>
+                    <p>Analyze GitHub repositories or local projects. Get insights on tech stack, quality metrics, contributors, and domain classification.</p>
+                    <ul class="feature-list">
+                        <li><i class="fas fa-check"></i> Tech Stack Detection</li>
+                        <li><i class="fas fa-check"></i> Quality Scoring</li>
+                        <li><i class="fas fa-check"></i> Contributor Analysis</li>
+                        <li><i class="fas fa-check"></i> Domain Classification</li>
+                    </ul>
+                    <a href="/repo-analyzer" class="btn btn-primary">
+                        <i class="fas fa-arrow-right"></i> Go to Analyzer
+                    </a>
+                </div>
+
+                <!-- UI Rater Card -->
+                <div class="feature-card">
+                    <div class="card-icon">
+                        <i class="fas fa-image"></i>
+                    </div>
+                    <h3>UI Rater</h3>
+                    <p>Upload images and get AI-powered quality ratings. Our model provides accurate predictions with confidence scores.</p>
+                    <ul class="feature-list">
+                        <li><i class="fas fa-check"></i> AI Quality Assessment</li>
+                        <li><i class="fas fa-check"></i> Confidence Scoring</li>
+                        <li><i class="fas fa-check"></i> Multiple Format Support</li>
+                        <li><i class="fas fa-check"></i> Instant Results</li>
+                    </ul>
+                    <a href="/image-rater" class="btn btn-primary">
+                        <i class="fas fa-arrow-right"></i> Go to Rater
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section class="info-section">
+            <h2>How It Works</h2>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h4>Select Tool</h4>
+                    <p>Choose between Repository Analyzer or UI Rater</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h4>Provide Input</h4>
+                    <p>Enter repo URL/path or upload an image</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h4>Get Analysis</h4>
+                    <p>Receive detailed insights and metrics</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <h4>Take Action</h4>
+                    <p>Use results to improve your projects</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2025 ProGrade. All rights reserved.</p>
+            <a href="mailto:anshgpatel017@gmail.com" style="color: white;">anshgpatel017@gmail.com</a>
+            
+            <a href="mailto:odchauhan0702@gmail.com" style="color: white;">odchauhan0702@gmail.com</a>
+
+            
+        </div>
+    </footer>
+</body>
+</html>

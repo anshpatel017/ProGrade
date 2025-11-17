@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>ProGrade - Repo Analyzer</title>
+    <link rel="stylesheet" href="/static/style.css">
+  </head>
+  <body>
+    <div class="container">
+      <h1>ProGrade — Repo Analyzer</h1>
+      <form method="post">
+        <label for="repo_url">GitHub repo URL or local path</label>
+        <input id="repo_url" name="repo_url" placeholder="https://github.com/user/repo or C:\\path\\to\\repo" required>
+        <button type="submit">Analyze</button>
+      </form>
+
+      {% if error %}
+        <div class="error">Error: {{ error }}</div>
+      {% endif %}
+
+      {% if results %}
+      <section class="results">
+        <h2>Model Report for: {{ results.repo_name }}</h2>
+
+        <div class="grid">
+          <div class="card">
+            <h3>Summary</h3>
+            <p><strong>Repo:</strong> {{ results.repo_name }}</p>
+            {% if results.model_report.repo_name %}
+            <p><strong>Reported Name:</strong> {{ results.model_report.repo_name }}</p>
+            {% endif %}
+            {% if results.model_report.domains %}
+            <p><strong>Domains:</strong> {{ results.model_report.domains | join(', ') }}</p>
+            {% endif %}
+          </div>
+
+          <div class="card">
+            <h3>Scores</h3>
+            {% if results.model_report.scores %}
+              <ul class="scores">
+                {% for k, v in results.model_report.scores.items() %}
+                  <li><strong>{{ k.replace('_',' ').title() }}:</strong> {{ '%.2f'|format(v) if (v is number) else v }}</li>
+                {% endfor %}
+              </ul>
+            {% else %}
+              <p>N/A</p>
+            {% endif %}
+          </div>
+
+          <div class="card contributors">
+            <h3>Top Contributors</h3>
+            {% if results.model_report.contributors %}
+              <ol>
+                {% for c in results.model_report.contributors[:10] %}
+                  <li>{{ c.name if c.name else c }}{% if c.commits is defined %} — {{ c.commits }} commits{% endif %}</li>
+                {% endfor %}
+              </ol>
+            {% else %}
+              <p>None detected</p>
+            {% endif %}
+          </div>
+
+          <div class="card tech">
+            <h3>Tech Stack</h3>
+            {% set ts = results.model_report.tech_stack or {} %}
+            <div class="tech-section">
+              <strong>Languages:</strong>
+              <div class="chips">
+                {% for l in ts.languages|default([]) %}
+                  <span class="chip">{{ l }}</span>
+                {% else %}
+                  <span class="muted">N/A</span>
+                {% endfor %}
+              </div>
+            </div>
+            <div class="tech-section">
+              <strong>Frameworks:</strong>
+              <div class="chips">
+                {% for f in ts.frameworks|default([]) %}
+                  <span class="chip">{{ f }}</span>
+                {% else %}
+                  <span class="muted">N/A</span>
+                {% endfor %}
+              </div>
+            </div>
+            <div class="tech-section">
+              <strong>Databases / Other:</strong>
+              <div class="chips">
+                {% for d in (ts.databases|default([])) + (ts.other_tools|default([])) %}
+                  <span class="chip">{{ d }}</span>
+                {% else %}
+                  <span class="muted">N/A</span>
+                {% endfor %}
+              </div>
+            </div>
+            <div class="tech-section">
+              <strong>AI Assistants / Tools:</strong>
+              <div class="chips">
+                {% for a in ts.ai_coding_assistants|default([]) %}
+                  <span class="chip">{{ a }}</span>
+                {% else %}
+                  <span class="muted">N/A</span>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </section>
+      {% endif %}
+    </div>
+  </body>
+</html>

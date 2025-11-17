@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Rater - ProGrade</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <i class="fas fa-chart-line"></i>
+                <span>ProGrade</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="/">Dashboard</a></li>
+                <li><a href="/repo-analyzer">Repo Analyzer</a></li>
+                <li><a href="/image-rater" class="active">Image Rater</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="container">
+        <section class="analyzer-section">
+            <h1><i class="fas fa-image"></i> UI Quality Rater</h1>
+            <p class="subtitle">Upload an image to get AI-powered quality assessment</p>
+
+            <div class="input-section">
+                <form id="imageForm" class="analyzer-form" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="imageFile">Select Image</label>
+                        <div class="file-upload-wrapper" onclick="document.getElementById('imageFile').click()">
+                            <input 
+                                type="file" 
+                                id="imageFile" 
+                                name="file" 
+                                accept="image/*"
+                                required
+                                style="display: none;"
+                            >
+                            <div class="file-upload-label">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <p>Click to upload or drag and drop</p>
+                                <small>PNG, JPG, JPEG, GIF (Max 50MB)</small>
+                            </div>
+                        </div>
+                        <div id="fileName" class="file-name"></div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-large">
+                        <i class="fas fa-star"></i> Rate Image
+                    </button>
+                </form>
+            </div>
+
+            <div id="loadingSpinner" class="loading-spinner" style="display: none;">
+                <div class="spinner"></div>
+                <p>Analyzing image...</p>
+            </div>
+
+            <div id="errorMessage" class="alert alert-error" style="display: none;"></div>
+
+            <div id="resultsSection" class="results-section" style="display: none;">
+                <h2>Rating Results</h2>
+                
+                <div class="results-grid">
+                    <!-- Image Preview Card -->
+                    <div class="result-card full-width">
+                        <h3><i class="fas fa-image"></i> Image Preview</h3>
+                        <div class="card-content image-preview-container">
+                            <img id="previewImage" src="" alt="Uploaded image" class="preview-image">
+                        </div>
+                    </div>
+
+                    <!-- Rating Card -->
+                    <div class="result-card">
+                        <h3><i class="fas fa-star"></i> Quality Rating</h3>
+                        <div class="card-content">
+                            <div class="rating-display">
+                                <div class="rating-value" id="ratingValue">-</div>
+                                <div class="rating-label">out of 5</div>
+                            </div>
+                            <div class="rating-stars" id="ratingStars"></div>
+                        </div>
+                    </div>
+
+                    <!-- Confidence Card -->
+                    <div class="result-card">
+                        <h3><i class="fas fa-chart-pie"></i> Confidence Score</h3>
+                        <div class="card-content">
+                            <div class="confidence-display">
+                                <div class="confidence-value" id="confidenceValue">-</div>
+                                <div class="confidence-label">Model Confidence</div>
+                            </div>
+                            <div class="progress-bar">
+                                <div id="confidenceBar" class="progress-fill"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Details Card -->
+                    <div class="result-card full-width">
+                        <h3><i class="fas fa-info-circle"></i> Analysis Details</h3>
+                        <div class="card-content">
+                            <div class="info-row">
+                                <span class="label">File Name:</span>
+                                <span id="resultFileName" class="value">-</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="label">Status:</span>
+                                <span class="value"><i class="fas fa-check-circle" style="color: #4CAF50;"></i> Successfully Analyzed</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn btn-secondary" onclick="resetForm()">
+                    <i class="fas fa-redo"></i> Rate Another Image
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2024 ProGrade. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        const fileInput = document.getElementById('imageFile');
+        const fileNameDisplay = document.getElementById('fileName');
+        const uploadWrapper = document.querySelector('.file-upload-wrapper');
+
+        // File input change handler
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                fileNameDisplay.textContent = `Selected: ${e.target.files[0].name}`;
+            }
+        });
+
+        // Drag and drop
+        uploadWrapper.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadWrapper.classList.add('dragover');
+        });
+
+        uploadWrapper.addEventListener('dragleave', () => {
+            uploadWrapper.classList.remove('dragover');
+        });
+
+        uploadWrapper.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadWrapper.classList.remove('dragover');
+            if (e.dataTransfer.files.length > 0) {
+                fileInput.files = e.dataTransfer.files;
+                fileNameDisplay.textContent = `Selected: ${e.dataTransfer.files[0].name}`;
+            }
+        });
+
+        // Form submission
+        document.getElementById('imageForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const file = fileInput.files[0];
+            if (!file) {
+                alert('Please select an image');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            const errorMessage = document.getElementById('errorMessage');
+            const resultsSection = document.getElementById('resultsSection');
+
+            errorMessage.style.display = 'none';
+            resultsSection.style.display = 'none';
+            loadingSpinner.style.display = 'flex';
+
+            try {
+                const response = await fetch('/api/rate-image', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                loadingSpinner.style.display = 'none';
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Rating failed');
+                }
+
+                displayResults(data);
+                resultsSection.style.display = 'block';
+            } catch (error) {
+                loadingSpinner.style.display = 'none';
+                errorMessage.textContent = `Error: ${error.message}`;
+                errorMessage.style.display = 'block';
+            }
+        });
+
+        function displayResults(data) {
+            const rating = data.rating;
+            const confidence = data.confidence;
+
+            // Rating
+            document.getElementById('ratingValue').textContent = rating.toFixed(1);
+            
+            // Rating stars
+            const starsContainer = document.getElementById('ratingStars');
+            starsContainer.innerHTML = '';
+            for (let i = 1; i <= 5; i++) {
+                const star = document.createElement('i');
+                star.className = i <= rating ? 'fas fa-star' : 'far fa-star';
+                star.style.color = i <= rating ? '#FFD700' : '#ddd';
+                starsContainer.appendChild(star);
+            }
+
+            // Confidence
+            const confidencePercent = (confidence * 100).toFixed(1);
+            document.getElementById('confidenceValue').textContent = confidencePercent + '%';
+            document.getElementById('confidenceBar').style.width = confidencePercent + '%';
+
+            // Image preview
+            document.getElementById('previewImage').src = data.image_url;
+            document.getElementById('resultFileName').textContent = data.filename;
+        }
+
+        function resetForm() {
+            document.getElementById('imageForm').reset();
+            document.getElementById('resultsSection').style.display = 'none';
+            document.getElementById('fileName').textContent = '';
+            fileInput.focus();
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+body { font-family: Arial, Helvetica, sans-serif; background:#f7f9fb; color:#222 }
+.container { max-width:900px; margin:36px auto; padding:20px }
+h1 { margin-bottom:12px }
+form { display:flex; gap:8px; align-items:center; margin-bottom:16px }
+input[name="repo_url"]{ flex:1; padding:8px 10px; border:1px solid #ccc; border-radius:4px }
+button{ padding:8px 12px; background:#0b5cff; color:#fff; border:none; border-radius:4px }
+.results { margin-top:18px }
+.card { background:#fff; padding:12px; border-radius:6px; box-shadow:0 1px 3px rgba(0,0,0,0.06); margin-bottom:10px }
+pre{ white-space:pre-wrap; word-wrap:break-word; font-family:monospace; font-size:13px }
+.error { background:#fff1f0; color:#9b1c1c; padding:8px; border-radius:4px; margin-bottom:8px }
+
+/* Grid layout for report cards */
+.grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap:12px }
+.card h3 { margin-top:0 }
+.scores { list-style:none; padding-left:0 }
+.scores li { padding:4px 0 }
+.chips { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px }
+.chip { background:#eef6ff; color:#0353a4; padding:6px 8px; border-radius:999px; font-size:13px }
+.muted { color:#666; font-size:13px }
+.contributors ol { padding-left:18px; margin:0 }
+
