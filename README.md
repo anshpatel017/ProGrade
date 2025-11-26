@@ -622,7 +622,7 @@ If you find ProGrade helpful, please consider starring the repository!
 
 ```bash
 # Show your support
-git star anshpatel0017/prograde
+git star anshpatel017/prograde
 ```
 
 ---
