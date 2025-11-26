@@ -631,7 +631,7 @@ git star anshpatel0017/prograde
 
 ### 🚀 [Visit Live Demo - https://prograde-4h86.onrender.com](https://prograde-4h86.onrender.com)
 
-Made with ❤️ by [Ansh Patel](https://github.com/anshpatel0017)
+Made with ❤️ by [Ansh Patel](https://github.com/anshpatel017)
 
 **[⬆ back to top](#prograde---intelligent-repository--image-analysis-platform-)**
 
